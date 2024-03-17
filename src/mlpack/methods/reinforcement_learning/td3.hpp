@@ -85,6 +85,9 @@ class TD3
       UpdaterType policyNetworkUpdater = UpdaterType(),
       EnvironmentType environment = EnvironmentType());
 
+  // New constructor with default parameters.
+  TD3(RandomReplay<Pendulum> replayMethod = defaultReplayMethod);
+  
   /**
     * Clean memory.
     */

@@ -121,6 +121,58 @@ TD3<
   PolicyNetworkType,
   UpdaterType,
   ReplayType
+>::TD3(RandomReplay<Pendulum> replayMethod) {
+  // Define default values for parameters.
+  constexpr double defaultStepSize = 0.01;
+  constexpr size_t defaultTargetNetworkSyncInterval = 1;
+  constexpr size_t defaultUpdateInterval = 3;
+  constexpr double defaultRho = 0.001;
+
+  // Define default network architecture.
+  FFN<EmptyLoss, GaussianInitialization> defaultPolicyNetwork(
+    EmptyLoss(), GaussianInitialization(0, 0.1));
+  defaultPolicyNetwork.Add(new Linear(128));
+  defaultPolicyNetwork.Add(new ReLU());
+  defaultPolicyNetwork.Add(new Linear(1));
+  defaultPolicyNetwork.Add(new TanH());
+
+  FFN<EmptyLoss, GaussianInitialization> defaultQNetwork(
+    EmptyLoss(), GaussianInitialization(0, 0.1));
+  defaultQNetwork.Add(new Linear(128));
+  defaultQNetwork.Add(new ReLU());
+  defaultQNetwork.Add(new Linear(1));
+
+  // Set up the TD3 training configuration.
+  TrainingConfig config;
+  config.StepSize() = defaultStepSize;
+  config.TargetNetworkSyncInterval() = defaultTargetNetworkSyncInterval;
+  config.UpdateInterval() = defaultUpdateInterval;
+  config.Rho() = defaultRho;
+
+  // Use default networks.
+  QNetworkType qNetwork = defaultQNetwork;
+  PolicyNetworkType policyNetwork = defaultPolicyNetwork;
+
+  // Copy over the learning networks to their respective target networks.
+  targetQ1Network.Parameters() = learningQ1Network.Parameters();
+  targetQ2Network.Parameters() = learningQ2Network.Parameters();
+  targetPNetwork.Parameters() = policyNetwork.Parameters();
+}
+
+
+template <
+  typename EnvironmentType,
+  typename QNetworkType,
+  typename PolicyNetworkType,
+  typename UpdaterType,
+  typename ReplayType
+>
+TD3<
+  EnvironmentType,
+  QNetworkType,
+  PolicyNetworkType,
+  UpdaterType,
+  ReplayType
 >::~TD3()
 {
   #if ENS_VERSION_MAJOR >= 2
