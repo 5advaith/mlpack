@@ -19,7 +19,7 @@
 
 #include "replay/replay.hpp"
 #include "training_config.hpp"
-
+using namespace ens;
 namespace mlpack {
 
 /**
@@ -47,9 +47,9 @@ namespace mlpack {
  */
 template <
   typename EnvironmentType,
-  typename QNetworkType,
-  typename PolicyNetworkType,
-  typename UpdaterType,
+  typename QNetworkType = FFN<EmptyLoss, GaussianInitialization>,
+  typename PolicyNetworkType = FFN<EmptyLoss, GaussianInitialization>,
+  typename UpdaterType = AdamUpdate,
   typename ReplayType = RandomReplay<EnvironmentType>
 >
 class TD3
@@ -84,7 +84,7 @@ class TD3
       UpdaterType qNetworkUpdater = UpdaterType(),
       UpdaterType policyNetworkUpdater = UpdaterType(),
       EnvironmentType environment = EnvironmentType());
-
+  TD3(ReplayType& replayMethod);
   /**
     * Clean memory.
     */

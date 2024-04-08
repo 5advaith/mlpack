@@ -108,6 +108,43 @@ TD3<
   targetPNetwork.Parameters() = policyNetwork.Parameters();
 }
 
+
+template <
+  typename EnvironmentType,
+  typename QNetworkType,
+  typename PolicyNetworkType,
+  typename UpdaterType,
+  typename ReplayType
+>
+TD3<EnvironmentType, QNetworkType, PolicyNetworkType, UpdaterType, ReplayType>::TD3(ReplayType& replayMethod)
+: TD3(
+    // Set up the TD3 training configuration.
+    TrainingConfig config;
+    config.StepSize() = 0.01;
+    config.TargetNetworkSyncInterval() = 1;
+    config.UpdateInterval() = 3;
+    config.Rho() = 0.001,
+
+    // Set up Critic network.
+    QNetworkType qNetwork(EmptyLoss(), GaussianInitialization(0, 0.1)),
+    qNetwork.Add(new Linear<EnvironmentType>(128));
+    qNetwork.Add(new ReLU<EnvironmentType>());
+    qNetwork.Add(new Linear<EnvironmentType>(1)),
+
+    // Set up Actor network.
+    PolicyNetworkType policyNetwork(EmptyLoss(), GaussianInitialization(0, 0.1)),
+    policyNetwork.Add(new Linear<EnvironmentType>(128));
+    policyNetwork.Add(new ReLU<EnvironmentType>());
+    policyNetwork.Add(new Linear<EnvironmentType>(1));
+    policyNetwork.Add(new TanH<EnvironmentType>()),
+
+    // Pass the replayMethod.
+    replayMethod,
+  )
+{
+  // The body of this constructor is now empty, because all the work is done
+  // by the other constructor.
+}
 template <
   typename EnvironmentType,
   typename QNetworkType,
